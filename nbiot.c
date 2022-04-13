@@ -99,9 +99,24 @@ void setup() {
 
 void testCv9(uint8_t sock)
 {
-  char active_timer[] = "00000001";
-  char periodic_timer[] = "00000001";
+  // 6s - 29.7 s -> 23 s + 6 s (6.00 s)
+  /*char active_timer[] = "00000011";
+  char periodic_timer[] = "00000001";*/
   
+  // 14s - 37.7 s -> 23 s + 14 s (13.99 s)
+  /*char active_timer[] = "00000111";
+  char periodic_timer[] = "00000001";*/
+
+  // 30s - 53.7 s - > 23 s + 30 s (29.99 s)
+  char active_timer[] = "00001111";
+  char periodic_timer[] = "00000001";
+
+  nbiot.enablePSM(active_timer, periodic_timer);
+
+  char cmd0[] = "AT+CSCON=1";
+  nbiot.sendRawCommand(cmd0);
+  delay(1000);
+
   char cmd1[] = "AT+NPSMR=1";
   nbiot.sendRawCommand(cmd1);
   delay(1000);
@@ -115,14 +130,13 @@ void testCv9(uint8_t sock)
 
   char flag[] = "0x000";
   nbiot.sendMessage(msg, REMOTE_IP, REMOTE_PORT, flag, sock);
-  nbiot.enablePSM(active_timer, periodic_timer);
 
-  uint32_t to = 10000;
+  uint32_t to = 60000;
   char res[450];
-  unsigned long t1 = millis();
   do  {
     nbiot.readResponse(res, to);
   } while (strstr(res, "+CSCON: 0") == 0);
+  unsigned long t1 = millis();
 
   do  {
     nbiot.readResponse(res, to);
